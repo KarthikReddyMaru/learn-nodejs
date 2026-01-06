@@ -1,0 +1,126 @@
+# ---------------------------------------------------------
+# Neo4j GraphQL Library Directives (v5+)
+# Save this as neo4j-directives.graphql
+# ---------------------------------------------------------
+
+"""
+Instructs @neo4j/graphql to treat this field as a relationship to another node.
+"""
+directive @relationship(
+    type: String!
+    queryDirection: Boolean = false
+    direction: Boolean!
+    properties: String
+    nestedOperations: [String!]
+    aggregate: Boolean = true
+) on FIELD_DEFINITION
+
+"""
+Marks a field as the unique ID for a type. Auto-generated if no value is provided.
+"""
+directive @id on FIELD_DEFINITION
+
+"""
+Marks a field as unique in the database (creates a constraint).
+"""
+directive @unique(constraintName: String) on FIELD_DEFINITION
+
+"""
+Indicates that a field should be populated with the current timestamp on create/update.
+"""
+directive @timestamp(operations: [String!]!) on FIELD_DEFINITION
+
+"""
+Indicates that a field should be populated with the current datetime when the node is updated.
+"""
+directive @updatedAt on FIELD_DEFINITION
+
+"""
+Indicates that a field should be populated with the current datetime when the node is created.
+"""
+directive @createdAt on FIELD_DEFINITION
+
+"""
+Allows you to define custom Cypher to resolve a field.
+"""
+directive @cypher(
+    statement: String!
+    columnName: String
+) on FIELD_DEFINITION | OBJECT
+
+"""
+Used to define authorization rules for a type or field.
+"""
+directive @authorization(
+    filter: [AuthorizationFilterRule!]
+    validate: [AuthorizationValidateRule!]
+) on OBJECT | FIELD_DEFINITION
+
+"""
+Used to define authentication rules (e.g., disable auth for a field).
+"""
+directive @authentication(
+    operations: [String!]
+    jwt: Boolean
+) on OBJECT | FIELD_DEFINITION
+
+"""
+Exclude a field or type from being generated in the API.
+"""
+directive @exclude(operations: [String!]!) on OBJECT | FIELD_DEFINITION
+
+"""
+Used on an interface to indicate that it defines properties for a relationship.
+"""
+directive @relationshipProperties on OBJECT | INTERFACE
+
+"""
+Designates a field as being a fulltext index.
+"""
+directive @fulltext(indexes: [FulltextIndex!]) on OBJECT
+
+"""
+Designates a field so it can be populated via a callback function on create.
+"""
+directive @populatedBy(callback: String!, operations: [String!] = ["CREATE", "UPDATE"]) on FIELD_DEFINITION
+
+"""
+Used to map a GraphQL field to a different property name in the Neo4j database.
+"""
+directive @alias(property: String!) on FIELD_DEFINITION
+
+"""
+Used to limit the amount of resources a query can consume.
+"""
+directive @limit(default: Int, max: Int) on OBJECT
+
+# ---------------------------------------------------------
+# Input Types required by directives
+# ---------------------------------------------------------
+
+input AuthorizationFilterRule {
+    operations: [String!]
+    requireAuthentication: Boolean
+    where: AuthorizationWhere
+}
+
+input AuthorizationValidateRule {
+    operations: [String!]
+    requireAuthentication: Boolean
+    where: AuthorizationWhere
+    when: [String!]
+}
+
+input AuthorizationWhere {
+    node:  AuthorizationWhere
+    jwt:   AuthorizationWhere
+    AND:  [AuthorizationWhere!]
+    OR:   [AuthorizationWhere!]
+    NOT:   AuthorizationWhere
+}
+
+input FulltextIndex {
+    queryName: String!
+    name: String
+    fields: [String!]!
+}
