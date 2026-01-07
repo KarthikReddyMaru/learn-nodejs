@@ -1,0 +1,24 @@
+type Task {
+    taskId: ID! @id
+    title: String!
+    description: String
+
+    subIssues: [Task!]! @relationship(type: "DEPENDS_ON", direction: OUT, properties: "TaskProperties")
+}
+
+input TaskInput {
+    title: String!
+    description: String
+}
+
+extend type Query {
+    task(id: ID!): Task
+}
+
+extend type Mutation {
+    createTask(task: TaskInput!): Task
+}
+
+type TaskProperties @relationshipProperties {
+    at: DateTime
+}

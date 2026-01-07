@@ -1,9 +1,0 @@
-type Student {
-    id: ID!
-    name: String!
-    age: Int!
-}
-
-extend type Query {
-    student(id: ID!): Student
-}

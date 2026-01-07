@@ -1,6 +1,6 @@
+scalar DateTime
 # ---------------------------------------------------------
 # Neo4j GraphQL Library Directives (v5+)
-# Save this as neo4j-directives.graphql
 # ---------------------------------------------------------
 
 """
@@ -8,17 +8,33 @@ Instructs @neo4j/graphql to treat this field as a relationship to another node.
 """
 directive @relationship(
     type: String!
-    queryDirection: Boolean = false
-    direction: Boolean!
+    direction: Direction!
     properties: String
-    nestedOperations: [String!]
+    nestedOperations: [RelationshipNestedOperations!]
     aggregate: Boolean = true
 ) on FIELD_DEFINITION
 
+enum Direction {
+    IN
+    OUT
+}
+
+enum RelationshipNestedOperations {
+    CREATE
+    UPDATE
+    DELETE
+    CONNECT
+    DISCONNECT
+    CONNECT_OR_CREATE
+}
+
 """
-Marks a field as the unique ID for a type. Auto-generated if no value is provided.
+Marks a field as the unique ID for a type.
 """
-directive @id on FIELD_DEFINITION
+directive @id(
+    autogenerate: Boolean = true
+    global: Boolean = false
+) on FIELD_DEFINITION
 
 """
 Marks a field as unique in the database (creates a constraint).
@@ -28,7 +44,7 @@ directive @unique(constraintName: String) on FIELD_DEFINITION
 """
 Indicates that a field should be populated with the current timestamp on create/update.
 """
-directive @timestamp(operations: [String!]!) on FIELD_DEFINITION
+directive @timestamp(operations: [TimestampOperation!]) on FIELD_DEFINITION
 
 """
 Indicates that a field should be populated with the current datetime when the node is updated.
@@ -39,6 +55,11 @@ directive @updatedAt on FIELD_DEFINITION
 Indicates that a field should be populated with the current datetime when the node is created.
 """
 directive @createdAt on FIELD_DEFINITION
+
+enum TimestampOperation {
+    CREATE
+    UPDATE
+}
 
 """
 Allows you to define custom Cypher to resolve a field.
@@ -54,20 +75,27 @@ Used to define authorization rules for a type or field.
 directive @authorization(
     filter: [AuthorizationFilterRule!]
     validate: [AuthorizationValidateRule!]
-) on OBJECT | FIELD_DEFINITION
+) on OBJECT | FIELD_DEFINITION | INTERFACE
 
 """
-Used to define authentication rules (e.g., disable auth for a field).
+Used to define authentication rules (e.g., ensure user is logged in).
 """
 directive @authentication(
     operations: [String!]
     jwt: Boolean
-) on OBJECT | FIELD_DEFINITION
+) on OBJECT | FIELD_DEFINITION | INTERFACE
 
 """
 Exclude a field or type from being generated in the API.
 """
-directive @exclude(operations: [String!]!) on OBJECT | FIELD_DEFINITION
+directive @exclude(operations: [ExcludeOperation!]!) on OBJECT | FIELD_DEFINITION
+
+enum ExcludeOperation {
+    CREATE
+    READ
+    UPDATE
+    DELETE
+}
 
 """
 Used on an interface to indicate that it defines properties for a relationship.
@@ -100,23 +128,27 @@ directive @limit(default: Int, max: Int) on OBJECT
 
 input AuthorizationFilterRule {
     operations: [String!]
-    requireAuthentication: Boolean
+    requireAuthentication: Boolean = true
     where: AuthorizationWhere
 }
 
 input AuthorizationValidateRule {
     operations: [String!]
-    requireAuthentication: Boolean
+    requireAuthentication: Boolean = true
     where: AuthorizationWhere
-    when: [String!]
+    when: [String!] # Used for "pre" or "post" validation
 }
 
+"""
+The `AuthorizationWhere` input is dynamic in the actual library,
+referencing your specific types. For a static file, we map it generically.
+"""
 input AuthorizationWhere {
-    node:  AuthorizationWhere
-    jwt:   AuthorizationWhere
-    AND:  [AuthorizationWhere!]
-    OR:   [AuthorizationWhere!]
-    NOT:   AuthorizationWhere
+    node: AuthorizationWhere
+    jwt: AuthorizationWhere
+    AND: [AuthorizationWhere!]
+    OR: [AuthorizationWhere!]
+    NOT: AuthorizationWhere
 }
 
 input FulltextIndex {
