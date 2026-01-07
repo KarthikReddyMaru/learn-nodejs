@@ -3,6 +3,8 @@ type User {
     userId: ID! @id
     firstName: String
     lastName: String
+
+    assignedTasks: [Task!]! @relationship(type: "ASSIGNED_TO", direction: IN, properties: "TaskAssigneeProperties")
 }
 
 input UserInput {

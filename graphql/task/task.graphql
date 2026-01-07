@@ -4,6 +4,7 @@ type Task {
     description: String
 
     subIssues: [Task!]! @relationship(type: "DEPENDS_ON", direction: OUT, properties: "TaskProperties")
+    assignees: [User!]! @relationship(type: "ASSIGNED_TO", direction: OUT, properties: "TaskAssigneeProperties")
 }
 
 input TaskInput {
@@ -17,8 +18,13 @@ extend type Query {
 
 extend type Mutation {
     createTask(task: TaskInput!): Task
+    assignTask(taskId: ID, userId: ID): Boolean!
 }
 
 type TaskProperties @relationshipProperties {
     at: DateTime
+}
+
+type TaskAssigneeProperties @relationshipProperties {
+    info: String
 }

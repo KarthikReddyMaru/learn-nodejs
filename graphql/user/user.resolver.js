@@ -12,17 +12,15 @@ module.exports = {
         user: async (parent, { id }, { ogm }, info) => {
             const User = ogm.model("User");
 
-            const user = await User.find({
+            const [user] = await User.find({
                 where: {userId: id}
             })
 
-            console.log(user)
-
             return {
-                "userId": user[0].userId,
-                "email": user[0].email,
-                "firstName": user[0].firstName,
-                "lastName": user[0].lastName
+                "userId": user.userId,
+                "email": user.email,
+                "firstName": user.firstName,
+                "lastName": user.lastName,
             }
         }
     },
@@ -54,6 +52,39 @@ module.exports = {
                 "firstName": users[0].firstName,
                 "lastName": users[0].lastName
             }
+        }
+    },
+
+    User: {
+
+        /**
+         *
+         * @param userId
+         * @param args
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         * @return {Promise<*[]>}
+         */
+        assignedTasks: async ({ userId }, args, { ogm }, info) => {
+            const User = ogm.model("User");
+
+            const [user] = await User.find({
+                where: { userId: userId },
+                selectionSet: `{
+                    assignedTasks
+                    {
+                        taskId
+                        title
+                        description
+                    }
+                }`
+            })
+
+            const assignedTasks = [];
+            user.assignedTasks.forEach((task, index) => {
+                assignedTasks.push(task);
+            })
+            return assignedTasks;
         }
     }
 }
