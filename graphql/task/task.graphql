@@ -19,6 +19,7 @@ extend type Query {
 extend type Mutation {
     createTask(task: TaskInput!): Task
     assignTask(taskId: ID, userId: ID): Boolean!
+    unassignTask(taskId: ID, userId: ID): Boolean!
 }
 
 type TaskProperties @relationshipProperties {

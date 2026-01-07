@@ -56,7 +56,6 @@ module.exports = {
          * @param args
          * @param ogm { import('@neo4j/graphql-ogm').OGM }
          * @param info
-         * @return {{taskId: string, title: string, description: string}}
          */
         assignTask: async (parent, { userId, taskId }, { ogm }, info) => {
             const Task = ogm.model("Task")
@@ -66,6 +65,26 @@ module.exports = {
                     assignees: [{
                         where: { node: { userId: userId } },
                         edge: { info: "Did that work?" }
+                    }]
+                }
+            })
+            return true;
+        },
+
+        /**
+         *
+         * @param parent
+         * @param args
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         */
+        unassignTask: async (parent, { userId, taskId }, { ogm }, info) => {
+            const Task = ogm.model("Task");
+            await Task.update({
+                where: {taskId: taskId},
+                disconnect: {
+                    assignees: [{
+                        where: { node: { userId: userId } }
                     }]
                 }
             })
