@@ -1,10 +1,26 @@
 module.exports = {
     Query: {
-        task: (parent, args, context, info) => {
+
+        /**
+         *
+         * @param parent
+         * @param args
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         * @return {{id: *, name: string, age: number}}
+         */
+
+        task: async (parent, args, { ogm }, info) => {
+
+            const Task = ogm.model("Task");
+            const task = await Task.find({
+                where: {taskId: args.id}
+            })
+
             return {
-                "id": args.id,
-                "name": "Task",
-                "age": 22
+                "taskId": task[0].taskId,
+                "title": task[0].title,
+                "description": task[0].description
             }
         }
     },

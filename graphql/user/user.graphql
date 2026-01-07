@@ -1,0 +1,20 @@
+type User {
+    email: String! @unique(constraintName: "email_unique")
+    userId: ID! @id
+    firstName: String
+    lastName: String
+}
+
+input UserInput {
+    email: String!
+    firstName: String
+    lastName: String
+}
+
+extend type Query {
+    user(id: ID!): User
+}
+
+extend type Mutation {
+    createUser(user: UserInput!): User!
+}

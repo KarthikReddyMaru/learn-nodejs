@@ -18,7 +18,7 @@
     "@as-integrations/express5": "^1.1.2",
     "@graphql-tools/load-files": "^7.0.1",
     "@graphql-tools/merge": "^9.1.6",
-    "@neo4j/graphql": "^7.4.0",
+    "@neo4j/graphql": "^5.11.4",
     "@neo4j/graphql-ogm": "^5.11.4",
     "express": "^5.2.1",
     "graphql": "^16.12.0",
