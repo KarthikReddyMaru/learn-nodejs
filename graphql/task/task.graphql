@@ -3,13 +3,16 @@ type Task {
     title: String!
     description: String
 
-    subIssues: [Task!]! @relationship(type: "DEPENDS_ON", direction: OUT, properties: "TaskProperties")
+    superIssues: [Task!]! @relationship(type: "HAS_PARENT", direction: OUT, properties: "TaskProperties")
+    project: Project @relationship(type: "BELONGS_TO", direction: OUT)
+
     assignees: [User!]! @relationship(type: "ASSIGNED_TO", direction: OUT, properties: "TaskAssigneeProperties")
 }
 
 input TaskInput {
     title: String!
     description: String
+    estimatedTime: Int!
 }
 
 extend type Query {
@@ -17,15 +20,17 @@ extend type Query {
 }
 
 extend type Mutation {
-    createTask(task: TaskInput!): Task
-    assignTask(taskId: ID, userId: ID): Boolean!
-    unassignTask(taskId: ID, userId: ID): Boolean!
+    createTask(task: TaskInput!, projectId: ID!): Task!
+    updateTask(taskId: ID!, task: TaskInput!): Task!
+    assignTask(taskId: ID!, userId: ID!): Boolean!
+    unassignTask(taskId: ID!, userId: ID!): Boolean!
+    subIssue(parentTaskId: ID!, childTaskId: ID!): Boolean!
 }
 
 type TaskProperties @relationshipProperties {
-    at: DateTime
+    info: String
 }
 
 type TaskAssigneeProperties @relationshipProperties {
-    info: String
+    at: DateTime @timestamp(operations: [CREATE])
 }

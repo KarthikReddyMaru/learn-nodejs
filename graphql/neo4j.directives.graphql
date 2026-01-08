@@ -46,20 +46,13 @@ Indicates that a field should be populated with the current timestamp on create/
 """
 directive @timestamp(operations: [TimestampOperation!]) on FIELD_DEFINITION
 
-"""
-Indicates that a field should be populated with the current datetime when the node is updated.
-"""
-directive @updatedAt on FIELD_DEFINITION
-
-"""
-Indicates that a field should be populated with the current datetime when the node is created.
-"""
-directive @createdAt on FIELD_DEFINITION
-
 enum TimestampOperation {
     CREATE
     UPDATE
 }
+
+"""Instructs @neo4j/graphql to only expose a field through the Neo4j GraphQL OGM."""
+directive @private on FIELD_DEFINITION
 
 """
 Allows you to define custom Cypher to resolve a field.

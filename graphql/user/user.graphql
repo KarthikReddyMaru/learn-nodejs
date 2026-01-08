@@ -5,6 +5,7 @@ type User {
     lastName: String
 
     assignedTasks: [Task!]! @relationship(type: "ASSIGNED_TO", direction: IN, properties: "TaskAssigneeProperties")
+    org: Org @relationship(type: "WORKS_AT", direction: OUT)
 }
 
 input UserInput {
@@ -14,7 +15,7 @@ input UserInput {
 }
 
 extend type Query {
-    user(id: ID!): User
+    user: User
 }
 
 extend type Mutation {

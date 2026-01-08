@@ -1,0 +1,21 @@
+# noinspection GraphQLIllegalDirectiveArgument
+type Project {
+
+    projectId: ID! @id
+    name: String! @unique
+
+    members: [User!]! @relationship(type: "MEMBER_OF", direction: IN)
+    org: Org! @relationship(type: "HAS_PROJECT", direction: IN)
+
+    createdAt: DateTime @timestamp(operations: [CREATE])
+    updatedAt: DateTime @timestamp(operations: [UPDATE])
+}
+
+extend type Query {
+    project(projectId: ID!): Project
+}
+
+extend type Mutation {
+    createProject(name: String!, orgId: ID!): Project!
+    addToProject(projectId: ID!, userId: ID!): Boolean!
+}

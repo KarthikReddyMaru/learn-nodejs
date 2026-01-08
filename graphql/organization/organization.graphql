@@ -1,0 +1,17 @@
+# noinspection GraphQLIllegalDirectiveArgument
+type Org {
+    orgId: ID! @id
+    name: String! @unique(constraintName: "orgName_unique")
+
+    createdAt: DateTime @timestamp(operations: [CREATE])
+    updatedAt: DateTime @timestamp(operations: [UPDATE])
+}
+
+extend type Query {
+    org(orgId: ID!): Org!
+}
+
+extend type Mutation {
+    createOrg(name: String!): Org!
+    joinOrg(orgId: ID!): Org!
+}

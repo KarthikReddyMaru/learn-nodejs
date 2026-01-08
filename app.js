@@ -16,6 +16,11 @@ const resolvers = loadFilesSync("./graphql/**/*.resolver.js")
 
 const app = express()
 
+app.use((req, res, next) => {
+    req.userId = req.get('Authorization') ? req.get('Authorization').substring(7) : ''
+    next();
+})
+
 async function startServer() {
 
     const driver = neo4j.driver(
@@ -45,7 +50,12 @@ async function startServer() {
         "/graphql",
         express.json(),
         expressMiddleware(apolloServer, {
-            context: ({req, res}) => ({ ogm: ogm })
+            context: ({req, res}) => ({
+                ogm: ogm,
+                jwt: {
+                    sub: req.userId
+                }
+            })
         })
     );
 
