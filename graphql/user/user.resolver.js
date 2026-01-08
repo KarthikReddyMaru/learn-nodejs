@@ -1,3 +1,5 @@
+const { print } = require("graphql/language");
+
 module.exports = {
     Query: {
 
@@ -13,15 +15,11 @@ module.exports = {
             const User = ogm.model("User");
 
             const [user] = await User.find({
-                where: {userId: id}
+                where: { userId: id },
+                selectionSet: print(info.fieldNodes[0].selectionSet)
             })
 
-            return {
-                "userId": user.userId,
-                "email": user.email,
-                "firstName": user.firstName,
-                "lastName": user.lastName,
-            }
+            return user;
         }
     },
 
@@ -43,48 +41,11 @@ module.exports = {
                     email: user.email,
                     firstName: user.firstName ?? '',
                     lastName: user.lastName ?? ''
-                }]
+                }],
+                selectionSet: print(info.fieldNodes[0].selectionSet)
             })
 
-            return {
-                "userId": users[0].userId,
-                "email": users[0].email,
-                "firstName": users[0].firstName,
-                "lastName": users[0].lastName
-            }
-        }
-    },
-
-    User: {
-
-        /**
-         *
-         * @param userId
-         * @param args
-         * @param ogm { import('@neo4j/graphql-ogm').OGM }
-         * @param info
-         * @return {Promise<*[]>}
-         */
-        assignedTasks: async ({ userId }, args, { ogm }, info) => {
-            const User = ogm.model("User");
-
-            const [user] = await User.find({
-                where: { userId: userId },
-                selectionSet: `{
-                    assignedTasks
-                    {
-                        taskId
-                        title
-                        description
-                    }
-                }`
-            })
-
-            const assignedTasks = [];
-            user.assignedTasks.forEach((task, index) => {
-                assignedTasks.push(task);
-            })
-            return assignedTasks;
+            return users[0];
         }
     }
 }

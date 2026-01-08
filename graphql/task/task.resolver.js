@@ -1,3 +1,5 @@
+const { print } = require("graphql/language");
+
 module.exports = {
     Query: {
 
@@ -14,14 +16,11 @@ module.exports = {
 
             const Task = ogm.model("Task");
             const task = await Task.find({
-                where: {taskId: args.id}
+                where: {taskId: args.id},
+                selectionSet: print(info.fieldNodes[0].selectionSet)
             })
 
-            return {
-                "taskId": task[0].taskId,
-                "title": task[0].title,
-                "description": task[0].description
-            }
+            return task[0];
         }
     },
 
@@ -41,13 +40,10 @@ module.exports = {
                 input: [{
                     title: args.task.title,
                     description: args.task.description
-                }]
+                }],
+                selectionSet: print(info.fieldNodes[0].selectionSet)
             })
-            return {
-                "taskId": tasks[0].taskId,
-                "title": tasks[0].title,
-                "description": tasks[0].description
-            }
+            return tasks[0];
         },
 
         /**
@@ -90,39 +86,6 @@ module.exports = {
             })
 
             return true;
-        }
-    },
-
-    Task: {
-
-        /**
-         *
-         * @param taskId
-         * @param args
-         * @param ogm { import('@neo4j/graphql-ogm').OGM }
-         * @param info
-         */
-        assignees: async ({ taskId }, args, { ogm }, info) => {
-            const Task = ogm.model("Task");
-
-            const [task] = await Task.find({
-                where: {taskId: taskId},
-                selectionSet: `{
-                    assignees {
-                        userId
-                        email
-                        firstName
-                    }
-                }`
-            })
-
-            const assignees = []
-
-            task.assignees.forEach((assignee, index) => {
-                assignees.push(assignee);
-            })
-
-            return assignees;
         }
     }
 }
