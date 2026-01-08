@@ -21,8 +21,6 @@ module.exports = {
                 selectionSet: print(info.fieldNodes[0].selectionSet)
             })
 
-            console.log(jwt)
-
             return user;
         }
     },

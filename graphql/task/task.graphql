@@ -12,7 +12,6 @@ type Task {
 input TaskInput {
     title: String!
     description: String
-    estimatedTime: Int!
 }
 
 extend type Query {
@@ -24,7 +23,10 @@ extend type Mutation {
     updateTask(taskId: ID!, task: TaskInput!): Task!
     assignTask(taskId: ID!, userId: ID!): Boolean!
     unassignTask(taskId: ID!, userId: ID!): Boolean!
-    subIssue(parentTaskId: ID!, childTaskId: ID!): Boolean!
+    createSubTask(parentTaskId: ID!, task: TaskInput!, projectId: ID!): Task!
+    attachSubTask(parentTaskId: ID!, childTaskId: ID!): Boolean!
+    detachSubTask(parentTaskId: ID!, childTaskId: ID!): Boolean!
+    deleteTask(taskId: ID!): Boolean!
 }
 
 type TaskProperties @relationshipProperties {

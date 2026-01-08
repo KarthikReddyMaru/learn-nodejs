@@ -64,7 +64,6 @@ module.exports = {
             return tasks[0];
         },
 
-
         /**
          *
          * @param parent
@@ -133,13 +132,56 @@ module.exports = {
         /**
          *
          * @param parent
+         * @param args
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         * @return {{taskId: string, title: string, description: string}}
+         */
+        createSubTask: async (parent, {parentTaskId, task, projectId}, { ogm }, info) => {
+
+            const Task = ogm.model("Task")
+
+            const userSelectionSet = print(info.fieldNodes[0].selectionSet)
+            const selectionSet = `{
+                tasks ${userSelectionSet}
+            }`
+
+            const input = {
+                ...task,
+                project: {
+                    connect: {
+                        where: {
+                            node: { projectId: projectId }
+                        }
+                    }
+                },
+                superIssues: {
+                    connect: {
+                        where: {
+                            node: { taskId: parentTaskId }
+                        }
+                    }
+                }
+            }
+
+            const { tasks } = await Task.create({
+                input: [input],
+                selectionSet: selectionSet
+            })
+
+            return tasks[0];
+        },
+
+        /**
+         *
+         * @param parent
          * @param parentTaskId
          * @param childTaskId
          * @param ogm { import('@neo4j/graphql-ogm').OGM }
          * @param info
          * @return {Promise<boolean>}
          */
-        subIssue: async (parent, { parentTaskId, childTaskId }, { ogm }, info) => {
+        attachSubTask: async (parent, { parentTaskId, childTaskId }, { ogm }, info) => {
             const Task = ogm.model("Task");
 
             await Task.update({
@@ -151,6 +193,47 @@ module.exports = {
                 }
             })
             return true;
-        }
+        },
+
+        /**
+         *
+         * @param parent
+         * @param parentTaskId
+         * @param childTaskId
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         * @return {Promise<boolean>}
+         */
+        detachSubTask: async (parent, { parentTaskId, childTaskId }, { ogm }, info) => {
+            const Task = ogm.model("Task");
+
+            await Task.update({
+                where: { taskId: childTaskId },
+                disconnect: {
+                    superIssues: {
+                        where: { node : { taskId: parentTaskId } }
+                    }
+                }
+            })
+            return true;
+        },
+
+        /**
+         *
+         * @param parent
+         * @param parentTaskId
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         * @return {Promise<boolean>}
+         */
+        deleteTask: async (parent, { taskId }, { ogm }, info) => {
+
+            const Task = ogm.model("Task");
+            await Task.delete({
+                where: { taskId: taskId }
+            })
+
+            return true;
+        },
     }
 }

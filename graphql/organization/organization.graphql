@@ -3,6 +3,8 @@ type Org {
     orgId: ID! @id
     name: String! @unique(constraintName: "orgName_unique")
 
+    employees: [User!]! @relationship(type: "WORKS_AT", direction: IN)
+
     createdAt: DateTime @timestamp(operations: [CREATE])
     updatedAt: DateTime @timestamp(operations: [UPDATE])
 }
@@ -14,4 +16,5 @@ extend type Query {
 extend type Mutation {
     createOrg(name: String!): Org!
     joinOrg(orgId: ID!): Org!
+    leaveOrg(orgId: ID!, userId: ID!): Org!
 }

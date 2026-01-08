@@ -32,7 +32,7 @@ module.exports = {
          * @param jwt
          * @param info
          */
-        org: async (parent, { name }, { ogm, jwt }, info) => {
+        createOrg: async (parent, { name }, { ogm, jwt }, info) => {
             const Org = ogm.model("Org");
 
             const clientSelection = print(info.fieldNodes[0].selectionSet);
@@ -81,6 +81,32 @@ module.exports = {
                         where: {
                             node: { userId: jwt.sub }
                         }
+                    }]
+                },
+                selectionSet: selectionSet
+            })
+
+            return orgs[0];
+        },
+
+        /**
+         *
+         * @param parent
+         * @param args
+         * @param ogm { import('@neo4j/graphql-ogm').OGM }
+         * @param info
+         */
+        leaveOrg: async (parent, { orgId, userId }, { ogm }, info) => {
+
+            const Org = ogm.model("Org");
+            const clientSelection = print(info.fieldNodes[0].selectionSet)
+            const selectionSet = `{ orgs ${clientSelection} }`
+
+            const { orgs } = await Org.update({
+                where: { orgId: orgId },
+                disconnect: {
+                    employees: [{
+                        where: { node: { userId: userId } }
                     }]
                 },
                 selectionSet: selectionSet

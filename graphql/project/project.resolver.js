@@ -40,7 +40,7 @@ module.exports = {
          * @param ogm { import('@neo4j/graphql-ogm').OGM }
          * @param info
          */
-        project: async (parent, { name, orgId }, { ogm }, info) => {
+        createProject: async (parent, { name, orgId }, { ogm }, info) => {
 
             const Project = ogm.model("Project");
             const clientSelection = print(info.fieldNodes[0].selectionSet)
@@ -68,9 +68,12 @@ module.exports = {
         },
 
         addToProject: async (parent, { userId, projectId }, context, info) => {
-            const Project = context.ogm.model("Project");
 
-            await Project.update({
+            const Project = context.ogm.model("Project");
+            const clientSelection = print(info.fieldNodes[0].selectionSet);
+            const selectionSet = `{ projects ${clientSelection} }`
+
+            const { projects } = await Project.update({
                 where: {
                     projectId: projectId
                 },
@@ -82,10 +85,46 @@ module.exports = {
                             }
                         }
                     }
-                }
+                },
+                selectionSet: selectionSet
             })
 
-            return true;
-        }
+            return projects[0];
+        },
+
+        removeFromProject: async (parent, { userId, projectId }, context, info) => {
+
+            const Project = context.ogm.model("Project");
+            const clientSelection = print(info.fieldNodes[0].selectionSet);
+            const selectionSet = `{ projects ${clientSelection} }`
+
+            const { projects } = await Project.update({
+                where: {
+                    projectId: projectId
+                },
+                disconnect: {
+                    members: {
+                        where: {
+                            node: {
+                                userId: userId
+                            }
+                        }
+                    }
+                },
+                selectionSet: selectionSet
+            })
+
+            return projects[0];
+        },
+
+        // deleteProject: async (parent, { projectId }, context, info) => {
+        //
+        //     const Project = context.ogm.model("Project");
+        //     await Project.delete({
+        //         where: { projectId: projectId }
+        //     })
+        //
+        //     return true;
+        // },
     }
 }

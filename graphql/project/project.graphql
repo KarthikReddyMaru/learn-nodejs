@@ -17,5 +17,7 @@ extend type Query {
 
 extend type Mutation {
     createProject(name: String!, orgId: ID!): Project!
-    addToProject(projectId: ID!, userId: ID!): Boolean!
+    addToProject(projectId: ID!, userId: ID!): Project!
+    removeFromProject(projectId: ID!, userId: ID!): Project!
+#    deleteProject(projectId: ID!): Boolean!
 }
